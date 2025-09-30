@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use Judgion, please cite this repository."
+title: "Judgion: A First Approach To Applying Machine Learning Techniques To Judge Mixed Martial Arts Bouts"
+authors:
+  - family-names: Ontiveros
+    given-names: Iván
+repository-code: "<REPO_URL>"
+version: "v0.0.0"
+date-released: "2025-10-01"
+license: "MIT"  # o "Apache-2.0" / "GPL-3.0-only"
+keywords:
+  - MMA
+  - judging
+  - machine learning
+  - neural networks
+preferred-citation:
+  type: software
+  title: "Judgion: A First Approach To Applying Machine Learning Techniques To Judge Mixed Martial Arts Bouts"
+  authors:
+    - family-names: Ontiveros
+      given-names: Iván
+  url: "<REPO_URL>"
+  version: "v0.0.0"
+  date-released: "2025-10-01"

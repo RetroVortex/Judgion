@@ -1,0 +1,66 @@
+{
+    "red_fighter": {
+        "name": "Jon Jones",
+        "knockdowns": 0,
+        "cuts": 0,
+        "sigstrikes": {
+            "head_attempted": 19,
+            "head_landed": 8,
+            "body_attempted": 7,
+            "body_landed": 5,
+            "leg_attempted": 11,
+            "leg_landed": 9,
+            "total_attempted": 37,
+            "total_landed": 22,
+            "distance_attempted": 37,
+            "distance_landed": 22,
+            "clinch_attempted": 0,
+            "clinch_landed": 0,
+            "ground_attempted": 0,
+            "ground_landed": 0
+        },
+        "strikes": {
+            "attempted": 37,
+            "landed": 22
+        },
+        "takedowns": {
+            "attempted": 0,
+            "landed": 0
+        },
+        "sub_attempts": 0,
+        "reversals": 0,
+        "control_seconds": 0
+    },
+    "blue_fighter": {
+        "name": "Dominick Reyes",
+        "knockdowns": 0,
+        "cuts": 0,
+        "sigstrikes": {
+            "head_attempted": 46,
+            "head_landed": 11,
+            "body_attempted": 12,
+            "body_landed": 12,
+            "leg_attempted": 10,
+            "leg_landed": 10,
+            "total_attempted": 68,
+            "total_landed": 33,
+            "distance_attempted": 68,
+            "distance_landed": 33,
+            "clinch_attempted": 0,
+            "clinch_landed": 0,
+            "ground_attempted": 0,
+            "ground_landed": 0
+        },
+        "strikes": {
+            "attempted": 68,
+            "landed": 33
+        },
+        "takedowns": {
+            "attempted": 0,
+            "landed": 0
+        },
+        "sub_attempts": 0,
+        "reversals": 0,
+        "control_seconds": 0
+    }
+}

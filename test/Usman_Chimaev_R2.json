@@ -1,0 +1,66 @@
+{
+    "red_fighter": {
+        "name": "Kamaru Usman",
+        "knockdowns": 0,
+        "cuts": 0,
+        "sigstrikes": {
+            "head_attempted": 9,
+            "head_landed": 5,
+            "body_attempted": 5,
+            "body_landed": 3,
+            "leg_attempted": 4,
+            "leg_landed": 3,
+            "total_attempted": 18,
+            "total_landed": 11,
+            "distance_attempted": 18,
+            "distance_landed": 11,
+            "clinch_attempted": 0,
+            "clinch_landed": 0,
+            "ground_attempted": 0,
+            "ground_landed": 0
+        },
+        "strikes": {
+            "attempted": 19,
+            "landed": 12
+        },
+        "takedowns": {
+            "attempted": 0,
+            "landed": 0
+        },
+        "sub_attempts": 0,
+        "reversals": 0,
+        "control_seconds": 0
+    },
+    "blue_fighter": {
+        "name": "Khamzat Chimaev",
+        "knockdowns": 0,
+        "cuts": 0,
+        "sigstrikes": {
+            "head_attempted": 10,
+            "head_landed": 3,
+            "body_attempted": 6,
+            "body_landed": 2,
+            "leg_attempted": 4,
+            "leg_landed": 4,
+            "total_attempted": 20,
+            "total_landed": 9,
+            "distance_attempted": 20,
+            "distance_landed": 9,
+            "clinch_attempted": 0,
+            "clinch_landed": 0,
+            "ground_attempted": 0,
+            "ground_landed": 0
+        },
+        "strikes": {
+            "attempted": 23,
+            "landed": 12
+        },
+        "takedowns": {
+            "attempted": 1,
+            "landed": 1
+        },
+        "sub_attempts": 0,
+        "reversals": 0,
+        "control_seconds": 41
+    }
+}

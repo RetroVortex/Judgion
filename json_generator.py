@@ -1,0 +1,358 @@
+# Iván Ontiveros - RetroVortex
+
+
+# This script generates JSON files with the stats of an UFC fight
+# It generates one file per round, and includes the stats for both fighters, and their names
+# The parameters 'cuts' and 'winner' are 0 by default, and they are supposed to be set manually
+
+
+# Libraries
+import requests
+from bs4 import BeautifulSoup
+import json
+import os
+import sys
+
+from judgionLib.constants import TRAINING_DIRECTORY, TEST_DIRECTORY
+
+
+# Link to the UFC stats website
+LINK_UFC_WEBSITE = 'http://ufcstats.com/fight-details/114d2f6fcd3f6f00' # TODO: Set this value
+
+
+class UFC_WEB_SCRAPER:
+
+    def __init__(self, link, flag_rm=False, flag_t=False):
+        # Link to the UFC stats website
+        self.url = link
+        
+        # Number of rounds (in total)
+        self.rounds_num = 0     # Default value
+
+        # Header for the web scraping
+        self.header = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 OPR/109.0.0.0'
+        }   # Change it depending on your device and OS
+
+        # BeautifulSoup variable where the web info will be stored
+        self.soup = None
+
+        # This strings will store the fighters' last names
+        self.red_last_name = ""
+        self.blue_last_name = ""
+
+        # Flag; if True, the files will be generated in the "test" directory instead of the "training" one
+        self.testing = flag_t
+
+        # Flag; if True, it will ignore the last round, useful for fights with finishes
+        self.remove_last_round = flag_rm
+
+
+    # This function gets the total of rounds the fight had
+    def get_total_rounds(self):
+        rounds = self.soup.select('i.b-fight-details__text-item')
+        self.rounds_num = int(rounds[0].text.strip()[-1])
+
+
+    # This function receives the total control time in 'XX:YY' format, and outputs the total equivalent in seconds
+    def time_conversion(self, control_time):
+        m, s = map(int, control_time.split(":"))
+        total_s = 60 * m + s
+        return total_s
+
+
+    # This function checks if there are any pre-existing files in the directory with the same ID as the chosen fight
+    def file_checker(self):
+
+        # Set which directory will be checked
+        directory = TEST_DIRECTORY if self.testing else TRAINING_DIRECTORY
+
+        # Look for any JSON files matching the ID
+        prefix = f"{self.red_last_name}_{self.blue_last_name}"
+        existing_files = os.listdir(directory)
+        max_round_found = 0
+        for filename in existing_files:
+            if filename.startswith(prefix) and filename.endswith(".json"):
+                
+                # Extract the round number from the filename
+                filename = filename[:-5]    # Removing the extension (.json)
+                round_num = int(filename.split('_R')[1])    # The second part after splitting will be the number of the round   
+                
+                # We store the higher round in 'max_round_found'
+                if round_num > max_round_found:
+                    max_round_found = round_num
+
+        # If there are no files matching the ID, just end the execution
+        if max_round_found == 0:
+            return 0
+
+        # If there are files matching the ID, ask the user what to do
+        print(f"\nWARNING: Files for {self.red_last_name} vs {self.blue_last_name} already exist.")
+
+        while True:
+            print("You can choose to:")
+            print("1) Overwrite existing files.")
+            print("2) Create new files (choose this option for rematches).")
+            print("3) Cancel.")
+
+            choice = input("Enter [1/2/3]: ").strip()
+
+            # Overwrite existing files
+            if choice == '1':
+                # Act as if there were no files
+                print("")
+                return 0
+
+            # Create new files
+            elif choice == '2':
+                # Create new files continuing from the highest round number
+                print("")
+                return max_round_found
+
+            # Cancel the operation
+            elif choice == '3':
+                print("Operation cancelled by user.\n")
+                sys.exit(0)
+
+            else:
+                print("ERROR: You must choose a valid option.\n")
+
+    
+
+    # This function uses the HTML web code to generate the JSON files
+    def generate_json(self):
+
+        # Extracting the fight stats
+        stats = self.soup.select('p.b-fight-details__table-text')
+
+        # Getting the fighters' names
+        red_corner = stats[0].text.strip()
+        blue_corner = stats[1].text.strip()
+        # Isolate the last names (they will be used for the file name)
+        self.red_last_name = red_corner.split()[-1]
+        self.blue_last_name = blue_corner.split()[-1]
+
+        # If there are files involving the same fighters already, it might be the same fight.
+        # Or it could be a rematch. The call to 'files_checker' lets the user handle it.
+        rounds_offset = self.file_checker()
+
+        # # If the fight only has 1 round and it is to be ignored, let the user know
+        if self.remove_last_round == True and self.rounds_num == 1:
+            print("\nERROR: The fight only contains 1 round and it is to be ignored.\nIf you want to generate the JSON file, run the script without the --remove-last flag.")
+            return
+
+        # Initializing the 'starting_points' array
+        # Its size will be 2*N, where N is the number of rounds (so, two values per round)
+        # The first value points out the 'starting point' for global stats ; The second value, for the significant strikes
+        starting_points = [22]      # First value is always 22
+
+        # Second value (starting point for round 1 significant strikes) is a variable that depends on N
+        # Its value equals --> Last value for global stats + an offset (21)
+        # Last value for global stats equals --> [ (starting_point[1] + 17) + (N - 1) * 20 ]
+        last_value = (starting_points[0] + 17) + (self.rounds_num - 1)*20
+        # Adding the offset and storing the value
+        starting_points.append(last_value + 21)
+
+        # We have stored the values for round 1
+        # Now, we need to complete the array with the values for the rounds remaining
+        for i in range(2,self.rounds_num*2,2):
+            # Next value for global stats --> Last value + Offset (20)
+            starting_points.append(starting_points[i-2] + 20)
+            # Next value for significant strikes stats --> Last value + Offset (18)
+            starting_points.append(starting_points[i-1] + 18)
+
+        json_iterator = self.rounds_num * 2
+        # If we are ignoring the last round, we won't generate the last JSON file
+        if self.remove_last_round == True:
+            json_iterator -= 2
+
+        # One JSON file will be created for every different round
+        for j in range(1, json_iterator, 2):
+
+            global_sp = starting_points[j - 1]
+            sigstrikes_sp = starting_points[j]
+
+            # Knockdowns
+            knockdowns_red = int(stats[global_sp].text.strip())  # Convertir a entero después de limpiar
+            knockdowns_blue = int(stats[global_sp + 1].text.strip())
+
+            # Strikes
+            strikes_red = stats[global_sp + 6].text.strip()
+            strikes_hit_red, strikes_att_red = map(int, strikes_red.split(' of '))
+            strikes_blue = stats[global_sp + 7].text.strip()
+            strikes_hit_blue, strikes_att_blue = map(int, strikes_blue.split(' of '))
+
+            # Takedowns
+            takedowns_red = stats[global_sp + 8].text.strip()
+            takedowns_hit_red, takedowns_att_red = map(int, takedowns_red.split(' of '))
+            takedowns_blue = stats[global_sp + 9].text.strip()
+            takedowns_hit_blue, takedowns_att_blue = map(int, takedowns_blue.split(' of '))
+
+            # Submission attempts
+            subattempts_red = int(stats[global_sp + 12].text.strip())
+            subattempts_blue = int(stats[global_sp + 13].text.strip())
+
+            # Reversals
+            reversals_red = int(stats[global_sp + 14].text.strip())
+            reversals_blue = int(stats[global_sp + 15].text.strip())
+
+            # Control time
+            control_red = self.time_conversion(stats[global_sp + 16].text.strip())
+            control_blue = self.time_conversion(stats[global_sp + 17].text.strip())
+
+            # Sigstrikes total
+            total_sigstrikes_red = stats[sigstrikes_sp].text.strip()
+            total_sigstrikes_hit_red, total_sigstrikes_att_red = map(int, total_sigstrikes_red.split(' of '))
+            total_sigstrikes_blue = stats[sigstrikes_sp + 1].text.strip()
+            total_sigstrikes_hit_blue, total_sigstrikes_att_blue = map(int, total_sigstrikes_blue.split(' of '))
+
+            # Sigstrikes head
+            head_sigstrikes_red = stats[sigstrikes_sp + 4].text.strip()
+            head_sigstrikes_hit_red, head_sigstrikes_att_red = map(int, head_sigstrikes_red.split(' of '))
+            head_sigstrikes_blue = stats[sigstrikes_sp + 5].text.strip()
+            head_sigstrikes_hit_blue, head_sigstrikes_att_blue = map(int, head_sigstrikes_blue.split(' of '))
+
+            # Sigstrikes body
+            body_sigstrikes_red = stats[sigstrikes_sp + 6].text.strip()
+            body_sigstrikes_hit_red, body_sigstrikes_att_red = map(int, body_sigstrikes_red.split(' of '))
+            body_sigstrikes_blue = stats[sigstrikes_sp + 7].text.strip()
+            body_sigstrikes_hit_blue, body_sigstrikes_att_blue = map(int, body_sigstrikes_blue.split(' of '))
+
+            # Sigstrikes legs
+            legs_sigstrikes_red = stats[sigstrikes_sp + 8].text.strip()
+            legs_sigstrikes_hit_red, legs_sigstrikes_att_red = map(int, legs_sigstrikes_red.split(' of '))
+            legs_sigstrikes_blue = stats[sigstrikes_sp + 9].text.strip()
+            legs_sigstrikes_hit_blue, legs_sigstrikes_att_blue = map(int, legs_sigstrikes_blue.split(' of '))
+
+            # Sigstrikes distance
+            dist_sigstrikes_red = stats[sigstrikes_sp + 10].text.strip()
+            dist_sigstrikes_hit_red, dist_sigstrikes_att_red = map(int, dist_sigstrikes_red.split(' of '))
+            dist_sigstrikes_blue = stats[sigstrikes_sp + 11].text.strip()
+            dist_sigstrikes_hit_blue, dist_sigstrikes_att_blue = map(int, dist_sigstrikes_blue.split(' of '))
+
+            # Sigstrikes clinch
+            clinch_sigstrikes_red = stats[sigstrikes_sp + 12].text.strip()
+            clinch_sigstrikes_hit_red, clinch_sigstrikes_att_red = map(int, clinch_sigstrikes_red.split(' of '))
+            clinch_sigstrikes_blue = stats[sigstrikes_sp + 13].text.strip()
+            clinch_sigstrikes_hit_blue, clinch_sigstrikes_att_blue = map(int, clinch_sigstrikes_blue.split(' of '))
+
+            # Sigstrikes ground
+            gnp_sigstrikes_red = stats[sigstrikes_sp + 14].text.strip()
+            gnp_sigstrikes_hit_red, gnp_sigstrikes_att_red = map(int, gnp_sigstrikes_red.split(' of '))
+            gnp_sigstrikes_blue = stats[sigstrikes_sp + 15].text.strip()
+            gnp_sigstrikes_hit_blue, gnp_sigstrikes_att_blue = map(int, gnp_sigstrikes_blue.split(' of '))
+
+            # JSON file estructure
+            data = {
+                "red_fighter": {
+                    "name": red_corner,
+                    "knockdowns": knockdowns_red,
+                    "cuts": 0,
+                    "sigstrikes": {
+                        "head_attempted": head_sigstrikes_att_red,
+                        "head_landed": head_sigstrikes_hit_red,
+                        "body_attempted": body_sigstrikes_att_red,
+                        "body_landed": body_sigstrikes_hit_red,
+                        "leg_attempted": legs_sigstrikes_att_red,
+                        "leg_landed": legs_sigstrikes_hit_red,
+                        "total_attempted": total_sigstrikes_att_red,
+                        "total_landed": total_sigstrikes_hit_red,
+                        "distance_attempted": dist_sigstrikes_att_red,
+                        "distance_landed": dist_sigstrikes_hit_red,
+                        "clinch_attempted": clinch_sigstrikes_att_red,
+                        "clinch_landed": clinch_sigstrikes_hit_red,
+                        "ground_attempted": gnp_sigstrikes_att_red,
+                        "ground_landed": gnp_sigstrikes_hit_red
+                    },
+                    "strikes": {
+                        "attempted": strikes_att_red,
+                        "landed": strikes_hit_red
+                    },
+                    "takedowns": {
+                        "attempted": takedowns_att_red,
+                        "landed": takedowns_hit_red
+                    },
+                    "sub_attempts": subattempts_red,
+                    "reversals": reversals_red,
+                    "control_seconds": control_red
+                },
+
+                "blue_fighter": {
+                    "name": blue_corner,
+                    "knockdowns": knockdowns_blue,
+                    "cuts": 0,
+                    "sigstrikes": {
+                        "head_attempted": head_sigstrikes_att_blue,
+                        "head_landed": head_sigstrikes_hit_blue,
+                        "body_attempted": body_sigstrikes_att_blue,
+                        "body_landed": body_sigstrikes_hit_blue,
+                        "leg_attempted": legs_sigstrikes_att_blue,
+                        "leg_landed": legs_sigstrikes_hit_blue,
+                        "total_attempted": total_sigstrikes_att_blue,
+                        "total_landed": total_sigstrikes_hit_blue,
+                        "distance_attempted": dist_sigstrikes_att_blue,
+                        "distance_landed": dist_sigstrikes_hit_blue,
+                        "clinch_attempted": clinch_sigstrikes_att_blue,
+                        "clinch_landed": clinch_sigstrikes_hit_blue,
+                        "ground_attempted": gnp_sigstrikes_att_blue,
+                        "ground_landed": gnp_sigstrikes_hit_blue
+                    },
+                    "strikes": {
+                        "attempted": strikes_att_blue,
+                        "landed": strikes_hit_blue
+                    },
+                    "takedowns": {
+                        "attempted": takedowns_att_blue,
+                        "landed": takedowns_hit_blue
+                    },
+                    "sub_attempts": subattempts_blue,
+                    "reversals": reversals_blue,
+                    "control_seconds": control_blue
+                },
+
+                "winner": 0
+            }
+
+            # Generating the actual file in the corresponding directory
+            round_number = (j // 2 + 1) + rounds_offset
+            if self.testing:
+                json_filename = f'{TEST_DIRECTORY}/{self.red_last_name}_{self.blue_last_name}_R{round_number}.json'
+            else:
+                json_filename = f'{TRAINING_DIRECTORY}/{self.red_last_name}_{self.blue_last_name}_R{round_number}.json'
+            
+            with open(json_filename, 'w') as json_file:
+                json.dump(data, json_file, indent=4, separators=(',', ': '))
+
+            print(f"File named {json_filename} was generated successfully.")
+
+
+    # This function starts the web scraping
+    def start_scraping(self):
+
+        # HTTP request to the URL
+        content = requests.get(self.url, headers=self.header)
+
+        # Checking the output status code
+        if content.status_code != 200:
+            # Any status code other than 200 means an error occurred
+            print(f"ERROR in the HTTP request. Code {content.status_code}.")
+
+        else:
+            # Formatting the web content
+            self.soup = BeautifulSoup(content.text, 'html.parser')
+            # Getting the total number of rounds
+            self.get_total_rounds()
+            # Checking that the number was correctly scraped
+            if self.rounds_num > 0:
+                # Calling the JSON generator method
+                self.generate_json()
+            else:
+                print("ERROR. The number of rounds scraped is not correct.")
+
+    
+# Main
+if __name__ == '__main__':
+    rm_flag = ('--remove-last' in sys.argv) or ('-r' in sys.argv)   # If we use the '-r' flag, the last round will be ignored
+    test_flag = ('--testing' in sys.argv) or ('-t' in sys.argv)     # If we use the '-t' flag, the files will be generated in the testing directory
+    scraper = UFC_WEB_SCRAPER(LINK_UFC_WEBSITE, rm_flag, test_flag)
+    scraper.start_scraping()

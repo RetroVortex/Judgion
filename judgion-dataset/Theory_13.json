@@ -1,0 +1,70 @@
+{
+    "red_fighter": {
+        "name": "Theory red",
+        "knockdowns": 0,
+        "cuts": 0,
+        "sigstrikes": {
+            "head_attempted": 27,
+            "head_landed": 21,
+            "body_attempted": 5,
+            "body_landed": 5,
+            "leg_attempted": 1,
+            "leg_landed": 1,
+            "total_attempted": 33,
+            "total_landed": 27,
+            "distance_attempted": 33,
+            "distance_landed": 27,
+            "clinch_attempted": 0,
+            "clinch_landed": 0,
+            "ground_attempted": 0,
+            "ground_landed": 0
+        },
+        "strikes": {
+            "attempted": 33,
+            "landed": 27
+        },
+        "takedowns": {
+            "attempted": 0,
+            "landed": 0
+        },
+        "sub_attempts": 0,
+        "reversals": 0,
+        "control_seconds": 0
+    },
+
+
+    "blue_fighter": {
+        "name": "Theory blue",
+        "knockdowns": 0,
+        "cuts": 0,
+        "sigstrikes": {
+            "head_attempted": 10,
+            "head_landed": 5,
+            "body_attempted": 10,
+            "body_landed": 3,
+            "leg_attempted": 10,
+            "leg_landed": 2,
+            "total_attempted": 30,
+            "total_landed": 10,
+            "distance_attempted": 25,
+            "distance_landed": 7,
+            "clinch_attempted": 5,
+            "clinch_landed": 3,
+            "ground_attempted": 0,
+            "ground_landed": 0
+        },
+        "strikes": {
+            "attempted": 60,
+            "landed": 35
+        },
+        "takedowns": {
+            "attempted": 0,
+            "landed": 0
+        },
+        "sub_attempts": 0,
+        "reversals": 0,
+        "control_seconds": 0
+    },
+
+    "winner": 1
+}

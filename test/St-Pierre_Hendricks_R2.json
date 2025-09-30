@@ -1,0 +1,66 @@
+{
+    "red_fighter": {
+        "name": "Georges St-Pierre",
+        "knockdowns": 0,
+        "cuts": 0,
+        "sigstrikes": {
+            "head_attempted": 46,
+            "head_landed": 19,
+            "body_attempted": 9,
+            "body_landed": 2,
+            "leg_attempted": 12,
+            "leg_landed": 7,
+            "total_attempted": 67,
+            "total_landed": 28,
+            "distance_attempted": 65,
+            "distance_landed": 27,
+            "clinch_attempted": 2,
+            "clinch_landed": 1,
+            "ground_attempted": 0,
+            "ground_landed": 0
+        },
+        "strikes": {
+            "attempted": 69,
+            "landed": 30
+        },
+        "takedowns": {
+            "attempted": 0,
+            "landed": 0
+        },
+        "sub_attempts": 0,
+        "reversals": 0,
+        "control_seconds": 0
+    },
+    "blue_fighter": {
+        "name": "Johny Hendricks",
+        "knockdowns": 0,
+        "cuts": 0,
+        "sigstrikes": {
+            "head_attempted": 59,
+            "head_landed": 21,
+            "body_attempted": 2,
+            "body_landed": 0,
+            "leg_attempted": 11,
+            "leg_landed": 9,
+            "total_attempted": 72,
+            "total_landed": 30,
+            "distance_attempted": 56,
+            "distance_landed": 19,
+            "clinch_attempted": 16,
+            "clinch_landed": 11,
+            "ground_attempted": 0,
+            "ground_landed": 0
+        },
+        "strikes": {
+            "attempted": 79,
+            "landed": 37
+        },
+        "takedowns": {
+            "attempted": 0,
+            "landed": 0
+        },
+        "sub_attempts": 0,
+        "reversals": 0,
+        "control_seconds": 37
+    }
+}
