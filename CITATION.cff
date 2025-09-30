@@ -4,10 +4,10 @@ title: "Judgion: A First Approach To Applying Machine Learning Techniques To Jud
 authors:
   - family-names: Ontiveros
     given-names: Iván
-repository-code: "<REPO_URL>"
+repository-code: "https://github.com/RetroVortex/Judgion"
 version: "v0.0.0"
 date-released: "2025-10-01"
-license: "MIT"  # o "Apache-2.0" / "GPL-3.0-only"
+license: "MIT"
 keywords:
   - MMA
   - judging
@@ -19,6 +19,6 @@ preferred-citation:
   authors:
     - family-names: Ontiveros
       given-names: Iván
-  url: "<REPO_URL>"
+  url: "https://github.com/RetroVortex/Judgion"
   version: "v0.0.0"
   date-released: "2025-10-01"
