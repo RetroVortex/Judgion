@@ -8,7 +8,7 @@ Live scorecards during UFC events will be posted on X (Twitter) and Instagram:
 - X: [@judgion](https://x.com/judgion)
 - Instagram: [@judgionmma](https://instagram.com/judgionmma)
 
-When citing this work, please reference the repository as shown in the `CITATION.cff`. You can contact me through social media or via email at: [judgion@gmail.com](mailto:judgion@gmail.com).
+When citing this work, please reference the repository as shown in the `CITATION.cff`. You can contact me through social media or via email at: [judgion@gmail.com](mailto:judgion@gmail.com). You can find the paper in this repository, as **paper.pdf**.
 
 
 ## Installation
@@ -39,13 +39,13 @@ python -m pip install -r requirements.txt
 
 The main script implements the judging process for a fight. It assumes you already have trained models (at least the ones featured in Judgion). 
 
-1. Choose which models will be used for the judging. Just enter the number associated with the judge in each list. 
+1. Choose which models will be used for the judging. Just enter the number associated with the judge in each list. You need to choose 3 different judges, although you can alter the number of judges in the "judgionLib/constants.py" script.
 
-2. You will be asked for the link to the stats page of the UFC fight. Copy and paste it on the terminal and press Enter,
+2. You will be asked for the link to the stats page of the UFC fight. All fights can be found in the official [UFC stats page](http://www.ufcstats.com/statistics/events/completed). Browse the web, choose a fight, copy the link and paste it on the terminal.
 
-3. One JSON file per round will be generated in the 'test' directory. You can modify it if necessary; when all is set, press Enter.
+3. One JSON file per round will be generated in the 'test' directory. You can modify it if necessary; when all is set, press Enter again.
 
-4. All scorecards have been generated and a winner has been declared. You can check the round-by-round scoring in the terminal.
+4. All scorecards have been generated and a winner has been declared. You can check the round-by-round scoring in the terminal output.
 
 ### Json_Generator
 
